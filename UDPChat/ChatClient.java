@@ -1,9 +1,5 @@
-package chatclient2;
 
-/**
- *
- * @author Isa
- */
+package chatclient2;
 import java.awt.BorderLayout;
 import static java.awt.BorderLayout.CENTER;
 import static java.awt.BorderLayout.NORTH;
@@ -41,6 +37,7 @@ public class ChatClient extends JFrame implements ActionListener{
     ChatListener listener = new ChatListener(outputArea); 
     Thread t1 = new Thread(listener);
     String user; 
+    boolean connected = false; 
     
     
     ChatClient() throws IOException{
@@ -61,9 +58,9 @@ public class ChatClient extends JFrame implements ActionListener{
         inputField.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 
-            
-                 try {
-                SendMessage(inputField.getText());
+                try {
+                    if(connected)
+                        SendMessage(inputField.getText());
             } catch (IOException ex) {
                 Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -87,7 +84,7 @@ public class ChatClient extends JFrame implements ActionListener{
             switch(connect.getText()){   
             case "KOPPLA UPP": connect.setText("KOPPLA NER"); 
             {
-               
+                connected = true; 
                 t1.start();  
                 try {
                     SendMessage("CONNECTED");
@@ -98,11 +95,16 @@ public class ChatClient extends JFrame implements ActionListener{
                 break;  
             case "KOPPLA NER": connect.setText("KOPPLA UPP"); 
             {
+                
                 try {
                     SendMessage("DISCONNECTED");
                 } catch (IOException ex) {
                     Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+                    System.out.println(ex.getMessage());
                 }
+                repaint();
+                connected = false; 
+                
             }
             }
         }
@@ -124,4 +126,5 @@ public class ChatClient extends JFrame implements ActionListener{
     }
 }
     
+
 
