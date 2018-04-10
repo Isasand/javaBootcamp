@@ -15,11 +15,12 @@ import javax.swing.JTextArea;
  *
  * @author Isa
  */
-public class ChatListener extends JFrame implements Runnable{
+public class ChatListener implements Runnable{
     
     int port = 55555; 
     JTextArea msgArea = new JTextArea(); 
-    MulticastSocket socket = new MulticastSocket(port);
+    MulticastSocket socket; 
+    boolean running = true; 
     
     ChatListener(JTextArea textArea) throws IOException{
         msgArea=textArea; 
@@ -27,7 +28,9 @@ public class ChatListener extends JFrame implements Runnable{
     
     @Override
     public void run(){
+        
         try {
+            socket = new MulticastSocket(port);
             socket.joinGroup(InetAddress.getByName("234.235.236.237"));
         } catch (UnknownHostException ex) {
             Logger.getLogger(ChatListener.class.getName()).log(Level.SEVERE, null, ex);
@@ -35,7 +38,8 @@ public class ChatListener extends JFrame implements Runnable{
             Logger.getLogger(ChatListener.class.getName()).log(Level.SEVERE, null, ex);
         }
         byte[] data = new byte[256]; 
-        while(true){
+        while(running){
+            
             DatagramPacket packet = new DatagramPacket(data, data.length); 
             try { 
                 socket.receive(packet);
@@ -43,9 +47,20 @@ public class ChatListener extends JFrame implements Runnable{
                 Logger.getLogger(ChatListener.class.getName()).log(Level.SEVERE, null, ex);
             } 
             String message = new String(packet.getData(), 0, packet.getLength()); 
-            msgArea.append(message); 
+            msgArea.append(message);
+            
         }
+    }
+    
+    public void stop(){
+        running = false; 
+        socket.close(); 
+    }
+    
+    public void setState(boolean state){
+        running = state; 
     }
 
 }
+
 
